@@ -1,0 +1,6 @@
+public/
+entrada/procesados/
+rescate-word/
+__pycache__/
+*.pyc
+

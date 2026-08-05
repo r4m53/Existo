@@ -1,0 +1,126 @@
+---
+titulo: confesiones
+fecha: 2005-11-07
+fecha_fuente: fecha_modificacion
+tipo: poesia
+tema: identidad-y-reflexion
+tema_fuente: clasificacion_automatica
+estado: publicado
+fuente_original: myweb/Personal/escritos/confesiones.htm
+---
+
+Confesiones
+
+Si a alguien tuviera que nombrar
+
+con un cetro o un verso
+
+"princesa del universo",
+
+¡sería a ti, Barbara Alba!
+
+por ser de espíritu fuerte
+
+y de una mirada que de ternura habla;
+
+por ser mujer madura
+
+que siendo sencilla
+
+tienes una sonrisa
+
+que en la memoria perdura;
+
+por ser estrella del cielo
+
+venida a la tierra;
+
+por no ser de hielo,
+
+sino, ¡una niña de carne y hueso!
+
+No puedo decir que te amo,
+
+tal vez porque casi no te trato,
+
+tal vez porque seas un sueño de antaño;
+
+pero hoy que no estoy calmo...
+
+te digo: ¡despierta niña de ensueño!
+
+que tu alma es de fuego
+
+y atrapada te veo;
+
+realmente en ti creo
+
+y sé que tarde o temprano,
+
+¡serás la niña que en sueños sospecho!
+
+No soy quién
+
+para decirte
+
+algo, poco o nada:
+
+porque, ¿quién ha escogido peor que yo
+
+a su gran amada?;
+
+pero cuando te conocí,
+
+todo era perfecto:
+
+la luz del sol opacada
+
+por la luz de tu alma
+
+y sin arena que midiera el tiempo
+
+en minutos o segundos
+
+vi esperanza en este mundo
+
+me liberaste de pena y acidez...
+
+y en la calidez de tu trato
+
+ni con dolor ni con orgullo
+
+mi vida te conté
+
+luego me perdí
+
+y Tú también,
+
+pero cuando te volvi a encontrar
+
+me sentí con menos valor
+
+que un penique o un simple Enrique,
+
+pues estaba ante una dama de gran honor
+
+enaltecida por la belleza de su ser
+
+porque toda ella era amor y miel
+
+luego no he visto
+
+la perfección,
+
+pero tu esencia
+
+permanece..
+
+y, todavía, te veo hoy...
+
+como la Princesa del Universo
+
+que sólo en un sueño sospecho:
+
+¡que su felicidad no tiene techo!
+
+Ramsé
