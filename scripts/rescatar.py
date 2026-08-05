@@ -122,6 +122,6 @@ def main():
     lineas += [f"- `{reparar_mojibake(str(a.relative_to(ARCHIVO)))}` -> `{reparar_mojibake(str(b.relative_to(ARCHIVO)))}`" for a,b in duplicados] or ["- Ninguno"]
     lineas += ["","## Revision manual pendiente",""] + ([f"- `{reparar_mojibake(str(p.relative_to(ARCHIVO)))}` (recuperacion parcial)" for p in revisiones]+[f"- `{reparar_mojibake(str(p.relative_to(ARCHIVO)))}` (sin texto suficiente)" for p in fallos] if revisiones or fallos else ["- Ninguna"])
     (RAIZ/"INFORME_RESCATE.md").write_text("\n".join(lineas)+"\n",encoding="utf-8")
-    print(f"Recuperadas {len(creados)} piezas; {len(duplicados)} duplicados; {len(fallos)} para revisión.")
+    print(f"Recuperadas {len(creados)} piezas; {len(duplicados)} duplicados; {len(revisiones)+len(fallos)} para revisión.")
     return 0
 if __name__=="__main__": raise SystemExit(main())
