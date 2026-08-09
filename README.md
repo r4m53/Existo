@@ -1,4 +1,6 @@
-# Archivo de escritos — nombre pendiente
+# Existo
+
+**Razono, siento; miento, luego sé que existo.**
 
 Este repositorio conserva escritos históricos y permite sumar poesías, ensayos,
 reflexiones y columnas financieras sin tener que editar el sitio a mano.
