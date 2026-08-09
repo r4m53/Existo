@@ -113,7 +113,7 @@ def tipo_de(titulo,texto,tema):
 
 def normalizar(texto): return re.sub(r"[^a-z0-9]+","",sin_acentos(texto).lower())
 def candidatos():
-    ps=list((ARCHIVO/"poesias").glob("*.txt"))+[p for p in (ARCHIVO/"poesias").glob("*.doc") if not p.name.startswith("~$")]+list((ARCHIVO/"myweb"/"Personal"/"escritos").glob("*.htm*"))
+    ps=[p for p in (ARCHIVO/"poesias").glob("*.txt") if p.name.lower()!="despedida del itam.txt"]+[p for p in (ARCHIVO/"poesias").glob("*.doc") if not p.name.startswith("~$")]+list((ARCHIVO/"myweb"/"Personal"/"escritos").glob("*.htm*"))
     ps += [p for p in (ARCHIVO/"poesias"/"imagenes").glob("*.txt") if not re.search(r"\s\d+-\d+$",p.stem)]
     return list(dict.fromkeys(ps))
 
@@ -139,6 +139,7 @@ def grupos_fragmentos():
 def escribir(ruta,texto,numero,estado="publicado"):
     titulo=titulo_de(ruta,texto); fecha,fecha_fuente=fecha_de(ruta,texto); tema=tema_de(titulo,texto); tipo=tipo_de(titulo,texto,tema)
     if slug(titulo)=="de-esos-amores-que-al-recordar-vuelven-a-nacer": fecha,fecha_fuente="2005-04-27","fecha_historica_conocida"
+    if slug(titulo)=="a-juan-pablo-ii": fecha,fecha_fuente="2005-04-04","dos_dias_despues_del_fallecimiento"
     destino=DESTINO/f"{fecha}-{slug(titulo)}.md"
     if destino.exists(): destino=DESTINO/f"{fecha}-{slug(titulo)}-{numero:02d}.md"
     fuente=ruta.relative_to(ARCHIVO).as_posix()
@@ -168,6 +169,7 @@ def main():
         revisiones.append(ruta); vistos[huella]=ruta; titulos[clave]=ruta; creados.append(escribir(ruta,texto,len(creados)+1,"revision"))
     lineas=["# Informe de rescate","",f"Generado: {datetime.now().isoformat(timespec='seconds')}","",f"- Piezas recuperadas: {len(creados)}",f"- Duplicados exactos omitidos: {len(duplicados)}",f"- Archivos sin texto suficiente: {len(fallos)}","","## Duplicados omitidos",""]
     lineas += [f"- `{reparar_mojibake(str(a.relative_to(ARCHIVO)))}` -> `{reparar_mojibake(str(b.relative_to(ARCHIVO)))}`" for a,b in duplicados] or ["- Ninguno"]
+    lineas += ["","## Equivalencias editoriales", "", "- `poesias/despedida del ITAM.txt` -> `myweb/Personal/escritos/adios_ITAM.htm` (misma obra; se conserva Adios ITAM)"]
     lineas += ["","## Fragmentos redundantes omitidos",""] + ([f"- `{reparar_mojibake(str(a.relative_to(ARCHIVO)))}` -> `{reparar_mojibake(str(b.relative_to(ARCHIVO)))}`" for a,b in fragmentos_omitidos] if fragmentos_omitidos else ["- Ninguno"])
     lineas += ["","## Revision manual pendiente",""] + ([f"- `{reparar_mojibake(str(p.relative_to(ARCHIVO)))}` (recuperacion parcial)" for p in revisiones]+[f"- `{reparar_mojibake(str(p.relative_to(ARCHIVO)))}` (sin texto suficiente)" for p in fallos] if revisiones or fallos else ["- Ninguna"])
     (RAIZ/"INFORME_RESCATE.md").write_text("\n".join(lineas)+"\n",encoding="utf-8")

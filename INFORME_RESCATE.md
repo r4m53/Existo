@@ -1,8 +1,8 @@
 # Informe de rescate
 
-Generado: 2026-08-09T10:13:40
+Generado: 2026-08-09T10:26:17
 
-- Piezas recuperadas: 79
+- Piezas recuperadas: 78
 - Duplicados exactos omitidos: 4
 - Archivos sin texto suficiente: 0
 
@@ -12,6 +12,10 @@ Generado: 2026-08-09T10:13:40
 - `myweb\Personal\escritos\de_esos_amores.htm` -> `poesias\¡De esos amores que al recordar vuelven a nacer!.doc`
 - `myweb\Personal\escritos\oracion.htm` -> `poesias\a Juan Pablo II.doc`
 - `myweb\Personal\escritos\pulsiones_a_mil.htm` -> `poesias\pulsiones a mil.txt`
+
+## Equivalencias editoriales
+
+- `poesias/despedida del ITAM.txt` -> `myweb/Personal/escritos/adios_ITAM.htm` (misma obra; se conserva Adios ITAM)
 
 ## Fragmentos redundantes omitidos
 

@@ -1,7 +1,7 @@
 ---
 titulo: a Juan Pablo II
 fecha: 2005-04-04
-fecha_fuente: fecha_modificacion
+fecha_fuente: dos_dias_despues_del_fallecimiento
 tipo: poesia
 tema: fe-y-espiritualidad
 tema_fuente: clasificacion_automatica
