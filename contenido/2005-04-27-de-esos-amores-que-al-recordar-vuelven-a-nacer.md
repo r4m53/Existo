@@ -9,9 +9,8 @@ estado: publicado
 fuente_original: poesias/¡De esos amores que al recordar vuelven a nacer!.doc
 ---
 
-Hola niño:
-Lo leí varias veces porque me gustó mucho, dime algo; ¿quién es el autor? porque al final decía tu nombre y si de verdad tu lo escribiste bueno realmente eres dueño de grandes bondades , si sólo lo copiaste por ahí aún así lo sigo creyendo, está muy pero muy lindo. Ciao
-
-Ramsé Gutiérrez Hernández <ramsegh@heymanasociados.com> wrote:
-
-Hola estimada Tania espero sea de tu agrado...
+¡De esos amores que al recordar vuelven a nacer!
+de un corazón que no te olvida!,
+como en aquella antigua vida...
+en aquella carta sin fé ni melodía
+durante el atardecer de ese aciago día

@@ -53,8 +53,10 @@ def extraer_doc(ruta):
         raros=len(re.findall(r'''[^A-Za-z0-9ÁÉÍÓÚÜÑáéíóúüñ¿¡.,;:!?\'"()…—–\-/%$#@&\s]''',texto))
         if letras>=20 and basura<max(5,len(texto)//20) and raros<=max(3,len(texto)//25): fragmentos.append(texto)
     if not fragmentos: return ""
-    mayor=max(fragmentos,key=lambda x:(len(x.split()),len(x)))
-    utiles=[x for x in fragmentos if not any(m in x for m in ("Microsoft Office Word","Word.Document","SummaryInformation","Times New Roman"))]
+    metadatos=("Microsoft Word","Word.Document","SummaryInformation","Times New Roman","theme/","<?xml","xmlns:","Content_Types")
+    utiles=[x for x in fragmentos if not any(m in x for m in metadatos)]
+    if not utiles: return ""
+    mayor=max(utiles,key=lambda x:(len(x.split()),len(x)))
     if len(mayor.split())<80 and sum(len(x.split()) for x in utiles)>len(mayor.split())*2:
         return limpiar("\n".join(utiles))
     return mayor
