@@ -62,12 +62,23 @@ def extraer_doc(ruta):
         resultado=limpiar("\n".join(utiles))
     else:
         resultado=mayor
-    lineas=resultado.splitlines()
+    tecnicos=("bjbj","IHDR","_rels/","MSWordDoc","Microsoft Word","Microsoft Office","Word.Document","Normal.dot","Normal","Title","Heyman Asociados","Heyman y Asociados","Gerente de Inversiones","Institutional asset","Administradores de inversiones","Masaryk ","Polanco, ","Tel/Fax","Email:","Website:")
+    lineas=[x for x in resultado.splitlines() if x.strip() and not any(x.strip().startswith(m) for m in tecnicos)]
+    if lineas:
+        inicio=normalizar(lineas[0])[:18]
+        for i,linea in enumerate(lineas[1:],1):
+            repetida=normalizar(linea)
+            if i>=8 and " " not in linea.strip() and re.search(r"[A-Z]{2,}.*\d|\d.*[A-Z]{2,}",linea):
+                lineas=lineas[:i]
+                break
+            if i>=len(lineas)//2 and inicio and len(repetida)>=6 and (repetida.startswith(inicio) or inicio.startswith(repetida)):
+                lineas=lineas[:i]
+                break
     for i,linea in enumerate(lineas):
         firma=linea.strip()
         if i>=len(lineas)//2 and re.fullmatch(r"[A-ZÁÉÍÓÚÜÑ]{3,20}",firma):
             return "\n".join(lineas[:i+1]).strip()
-    return resultado
+    return "\n".join(lineas).strip()
 
 def sin_acentos(texto): return "".join(c for c in unicodedata.normalize("NFKD",texto) if not unicodedata.combining(c))
 def slug(texto): return (re.sub(r"[^a-z0-9]+","-",sin_acentos(texto).lower()).strip("-")[:72] or "sin-titulo")
@@ -102,12 +113,32 @@ def tipo_de(titulo,texto,tema):
 
 def normalizar(texto): return re.sub(r"[^a-z0-9]+","",sin_acentos(texto).lower())
 def candidatos():
-    ps=list((ARCHIVO/"poesias").glob("*.txt"))+list((ARCHIVO/"poesias").glob("*.doc"))+list((ARCHIVO/"myweb"/"Personal"/"escritos").glob("*.htm*"))
+    ps=list((ARCHIVO/"poesias").glob("*.txt"))+[p for p in (ARCHIVO/"poesias").glob("*.doc") if not p.name.startswith("~$")]+list((ARCHIVO/"myweb"/"Personal"/"escritos").glob("*.htm*"))
     ps += [p for p in (ARCHIVO/"poesias"/"imagenes").glob("*.txt") if not re.search(r"\s\d+-\d+$",p.stem)]
-    return sorted(set(ps),key=lambda p:str(p).lower())
+    return list(dict.fromkeys(ps))
+
+def grupos_fragmentos():
+    grupos={}
+    for ruta in (ARCHIVO/"poesias"/"imagenes").glob("*.txt"):
+        m=re.match(r"^(.*?)\s+(\d+)-(\d+)$",ruta.stem)
+        if m: grupos.setdefault(m.group(1).lower(),[]).append((int(m.group(2)),ruta))
+    for clave,partes in grupos.items():
+        ordenadas=[p for _,p in sorted(partes)]
+        texto=limpiar("\n\n".join(limpiar(decodificar(p.read_bytes())) for p in ordenadas))
+        texto=re.sub(r"(?m)^[•>]\s?","",texto)
+        lineas=texto.splitlines()
+        if clave=="el sin por que del destino":
+            inicio=next((i for i,x in enumerate(lineas) if "sinpor" in normalizar(x)),0)
+            lineas=lineas[inicio:]
+            texto="\n".join(lineas).strip()
+        for i,linea in enumerate(lineas):
+            if i>=len(lineas)//2 and normalizar(linea)=="ramse":
+                texto="\n".join(lineas[:i+1]).strip(); break
+        yield ordenadas[0],texto
 
 def escribir(ruta,texto,numero,estado="publicado"):
     titulo=titulo_de(ruta,texto); fecha,fecha_fuente=fecha_de(ruta,texto); tema=tema_de(titulo,texto); tipo=tipo_de(titulo,texto,tema)
+    if slug(titulo)=="de-esos-amores-que-al-recordar-vuelven-a-nacer": fecha,fecha_fuente="2005-04-27","fecha_historica_conocida"
     destino=DESTINO/f"{fecha}-{slug(titulo)}.md"
     if destino.exists(): destino=DESTINO/f"{fecha}-{slug(titulo)}-{numero:02d}.md"
     fuente=ruta.relative_to(ARCHIVO).as_posix()
@@ -119,7 +150,7 @@ def main():
     if not ARCHIVO.exists(): print(f"No se encontró {ARCHIVO}",file=sys.stderr); return 1
     DESTINO.mkdir(parents=True,exist_ok=True)
     for p in DESTINO.glob("*.md"): p.unlink()
-    vistos={}; duplicados=[]; fallos=[]; revisiones=[]; creados=[]
+    vistos={}; titulos={}; duplicados=[]; fragmentos_omitidos=[]; fallos=[]; revisiones=[]; creados=[]
     for ruta in candidatos():
         texto=extraer_doc(ruta) if ruta.suffix.lower()==".doc" else extraer_html(ruta) if ruta.suffix.lower() in {".htm",".html"} else limpiar(decodificar(ruta.read_bytes()))
         if len(texto)<80: fallos.append(ruta); continue
@@ -127,9 +158,17 @@ def main():
         if huella in vistos: duplicados.append((ruta,vistos[huella])); continue
         estado="revision" if ruta.stem.lower()=="calaveritas" else "publicado"
         if estado=="revision": revisiones.append(ruta)
-        vistos[huella]=ruta; creados.append(escribir(ruta,texto,len(creados)+1,estado))
+        vistos[huella]=ruta; titulos[slug(titulo_de(ruta,texto))]=ruta; creados.append(escribir(ruta,texto,len(creados)+1,estado))
+    for ruta,texto in grupos_fragmentos():
+        clave=slug(titulo_de(ruta,texto))
+        if clave in titulos: fragmentos_omitidos.append((ruta,titulos[clave])); continue
+        if len(texto)<80: fallos.append(ruta); continue
+        huella=hashlib.sha256(normalizar(texto).encode()).hexdigest()
+        if huella in vistos: duplicados.append((ruta,vistos[huella])); continue
+        revisiones.append(ruta); vistos[huella]=ruta; titulos[clave]=ruta; creados.append(escribir(ruta,texto,len(creados)+1,"revision"))
     lineas=["# Informe de rescate","",f"Generado: {datetime.now().isoformat(timespec='seconds')}","",f"- Piezas recuperadas: {len(creados)}",f"- Duplicados exactos omitidos: {len(duplicados)}",f"- Archivos sin texto suficiente: {len(fallos)}","","## Duplicados omitidos",""]
     lineas += [f"- `{reparar_mojibake(str(a.relative_to(ARCHIVO)))}` -> `{reparar_mojibake(str(b.relative_to(ARCHIVO)))}`" for a,b in duplicados] or ["- Ninguno"]
+    lineas += ["","## Fragmentos redundantes omitidos",""] + ([f"- `{reparar_mojibake(str(a.relative_to(ARCHIVO)))}` -> `{reparar_mojibake(str(b.relative_to(ARCHIVO)))}`" for a,b in fragmentos_omitidos] if fragmentos_omitidos else ["- Ninguno"])
     lineas += ["","## Revision manual pendiente",""] + ([f"- `{reparar_mojibake(str(p.relative_to(ARCHIVO)))}` (recuperacion parcial)" for p in revisiones]+[f"- `{reparar_mojibake(str(p.relative_to(ARCHIVO)))}` (sin texto suficiente)" for p in fallos] if revisiones or fallos else ["- Ninguna"])
     (RAIZ/"INFORME_RESCATE.md").write_text("\n".join(lineas)+"\n",encoding="utf-8")
     print(f"Recuperadas {len(creados)} piezas; {len(duplicados)} duplicados; {len(revisiones)+len(fallos)} para revisión.")

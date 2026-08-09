@@ -19,7 +19,6 @@ es casi nuevo…
 ininteligible aún,
 pero con una armonía…,
 ¡que permite soñar con alegría!
-
 No quiero entender,
 ni quiero saber,
 sólo quiero disfrutar

@@ -13,11 +13,9 @@ Quiero oír armonía
 Y sentir que es de día
 Caminar por rupestre avenida
 Y sentirme parte de la vida
-
 Caminar por el camino
 Y llegar siempre a un diferente y mismo destino…
 con jardines y abetos,
 un cielo entero
 y con jugos de frutas repletos
-
 Que me diga la vida no es un infierno

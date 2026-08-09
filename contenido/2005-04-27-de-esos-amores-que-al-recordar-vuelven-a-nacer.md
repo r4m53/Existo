@@ -1,7 +1,7 @@
 ---
 titulo: ¡De esos amores que al recordar vuelven a nacer!
 fecha: 2005-04-27
-fecha_fuente: fecha_modificacion
+fecha_fuente: fecha_historica_conocida
 tipo: poesia
 tema: amor-y-desamor
 tema_fuente: clasificacion_automatica

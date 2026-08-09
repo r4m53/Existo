@@ -10,22 +10,18 @@ fuente_original: poesias/Pensamiento de mi anti yo.doc
 ---
 
 ¡Pensamiento anti yo!
-
 Otra vez me siento perdido
 como un niño en la penumbra de una ciudad
 en el vácio del sin sentido
 sin luz..., ¡sólo soledad!
-
 Me gustaría encontrar un objetivo
 que me tornará del nihilismo vagabundo
 a ser un caballero orgulloso y altivo
 que con sonrisa escueta encara la belleza del mundo.
-
 quiero creen en un más allá
 en un atalaya de luz,
 donde vea que una luna de plata,
 ¡no sea más fría que una soleada playa!
-
 Me imagino como un guerrero sin Cruzada
 como un príncipe sin amada,
 sólo veo bufones sin esperanza
@@ -34,19 +30,16 @@ distrayendo su conciencia
 burlándose de la inocencia...
 en la espera de un "mejor mañana"
 sin dejar de ser un animal.. una astuta araña.
-
 Quiero creer que la diversión máxima
 conlleva a la plena conciencia que no sólo rima,
 sino que no te tima
 y te lleva a la gran cima.
-
 Espero no ser abusurdo
 como antes el zurdo;
 aunque tampoco inteligente
 al creer que existe gente
 que sin pesar no miente
 ni con los dientes ni con la mente
-
 Espero la razón de ser
 y mientras vuelvo a dormir
 para no enloquecer
@@ -58,5 +51,4 @@ pero aún ahora una voz conciencia exclama:
 "Yerguete, trabaja, ¡ama!...
 algo falta,
 de mientras conserva la calma.
-
 Enrique Ramsé

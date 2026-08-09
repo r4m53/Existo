@@ -39,7 +39,9 @@ reflexión, México y otros.
 - `public/`: sitio generado; no se guarda en Git porque siempre se reconstruye.
 - `scripts/publicar.py`: flujo normal para añadir y construir.
 - `scripts/rescatar.py`: importador histórico reproducible; no altera Dropbox.
+- `scripts/auditar.py`: revisa residuos técnicos, codificación y duplicados.
 - `INFORME_RESCATE.md`: duplicados y piezas pendientes de revisión.
+- `INFORME_CALIDAD.md`: resultado de la última auditoría automática.
 
 Las fechas con `fecha_fuente: fecha_modificacion` son aproximadas y conviene
 corregirlas cuando exista mejor evidencia. Las clasificaciones automáticas se

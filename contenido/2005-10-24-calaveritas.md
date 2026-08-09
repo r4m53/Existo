@@ -10,17 +10,18 @@ fuente_original: poesias/calaveritas.doc
 ---
 
 por Paola,
-
 a las doce,
-
 la flaca corre
-
 a decirle:
-
 aunque te pintes de güera,
-
 seas morena o blanca
-
 a mi no me engañas
-
 eres tu quien en la noche habla
+Silvia,
+la muerte
+por ti no viene,
+aunque le ruegues,
+porque junto a ti
+es la gorda calaca
+por ser usted
+tan esmirriada y flaca!
