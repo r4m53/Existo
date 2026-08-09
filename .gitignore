@@ -3,4 +3,5 @@ entrada/procesados/
 rescate-word/
 __pycache__/
 *.pyc
-
+outputs/fechas/*.png
+outputs/fechas/*.ndjson

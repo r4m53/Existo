@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """Rescata escritos del sitio antiguo sin modificar los originales."""
 from __future__ import annotations
-import hashlib, html, re, sys, unicodedata
-from datetime import datetime
+import hashlib, html, re, sys, unicodedata, zipfile
+from datetime import datetime, timedelta
 from html.parser import HTMLParser
 from pathlib import Path
+from xml.etree import ElementTree as ET
 
 RAIZ = Path(__file__).resolve().parents[1]
 ARCHIVO = Path(r"C:\Users\ram5e\Dropbox\lanosrep\webs")
 DESTINO = RAIZ / "contenido"
+TABLA_FECHAS = RAIZ / "outputs" / "fechas" / "fechas.xlsx"
 
 class ExtractorHTML(HTMLParser):
     def __init__(self):
@@ -112,6 +114,46 @@ def tipo_de(titulo,texto,tema):
     return "poesia"
 
 def normalizar(texto): return re.sub(r"[^a-z0-9]+","",sin_acentos(texto).lower())
+
+def leer_fechas_editables():
+    if not TABLA_FECHAS.exists(): return {}
+    ns={"x":"http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
+    with zipfile.ZipFile(TABLA_FECHAS) as z:
+        compartidas=[]
+        if "xl/sharedStrings.xml" in z.namelist():
+            raiz=ET.fromstring(z.read("xl/sharedStrings.xml"))
+            compartidas=["".join(n.text or "" for n in si.findall(".//x:t",ns)) for si in raiz.findall("x:si",ns)]
+        hoja=ET.fromstring(z.read("xl/worksheets/sheet1.xml"))
+    filas=[]
+    for row in hoja.findall(".//x:sheetData/x:row",ns):
+        valores={}
+        for cell in row.findall("x:c",ns):
+            col=re.match(r"[A-Z]+",cell.get("r","")).group()
+            tipo=cell.get("t"); nodo=cell.find("x:v",ns)
+            if tipo=="inlineStr": valor="".join(n.text or "" for n in cell.findall(".//x:t",ns))
+            elif nodo is None: valor=""
+            elif tipo=="s": valor=compartidas[int(nodo.text)]
+            else: valor=nodo.text or ""
+            valores[col]=valor
+        filas.append(valores)
+    if not filas: return {}
+    indice=next((i for i,f in enumerate(filas) if any(v.strip().lower()=="slug" for v in f.values())),None)
+    if indice is None: return {}
+    columnas=filas[indice]; por_col={c:v.strip().lower() for c,v in columnas.items()}; salida={}
+    for fila in filas[indice+1:]:
+        item={por_col[c]:v.strip() for c,v in fila.items() if c in por_col}
+        clave=item.get("fuente original","") or item.get("slug","")
+        if not clave: continue
+        fecha=item.get("fecha exacta","")
+        if fecha and re.fullmatch(r"\d+(?:\.0)?",fecha): fecha=(datetime(1899,12,30)+timedelta(days=float(fecha))).strftime("%Y-%m-%d")
+        if fecha and re.fullmatch(r"\d{4}-\d{2}-\d{2}",fecha):
+            salida[clave]={"fecha":fecha,"fecha_mostrada":"","fuente":item.get("certeza") or "tabla_editable"}
+            continue
+        anio=item.get("año",""); periodo=item.get("periodo","").lower()
+        if re.fullmatch(r"\d{4}",anio):
+            meses={"invierno":"01-15","primavera":"03-21","verano":"06-21","otoño":"09-22"}
+            salida[clave]={"fecha":f"{anio}-{meses.get(periodo,'07-01')}","fecha_mostrada":f"{periodo.capitalize()+' de ' if periodo else ''}{anio}","fuente":item.get("certeza") or "tabla_editable"}
+    return salida
 def candidatos():
     ps=[p for p in (ARCHIVO/"poesias").glob("*.txt") if p.name.lower()!="despedida del itam.txt"]+[p for p in (ARCHIVO/"poesias").glob("*.doc") if not p.name.startswith("~$")]+list((ARCHIVO/"myweb"/"Personal"/"escritos").glob("*.htm*"))
     ps += [p for p in (ARCHIVO/"poesias"/"imagenes").glob("*.txt") if not re.search(r"\s\d+-\d+$",p.stem)]
@@ -136,14 +178,18 @@ def grupos_fragmentos():
                 texto="\n".join(lineas[:i+1]).strip(); break
         yield ordenadas[0],texto
 
-def escribir(ruta,texto,numero,estado="publicado"):
+def escribir(ruta,texto,numero,estado="publicado",fechas_editables=None):
     titulo=titulo_de(ruta,texto); fecha,fecha_fuente=fecha_de(ruta,texto); tema=tema_de(titulo,texto); tipo=tipo_de(titulo,texto,tema)
+    fuente=ruta.relative_to(ARCHIVO).as_posix()
     if slug(titulo)=="de-esos-amores-que-al-recordar-vuelven-a-nacer": fecha,fecha_fuente="2005-04-27","fecha_historica_conocida"
     if slug(titulo)=="a-juan-pablo-ii": fecha,fecha_fuente="2005-04-04","dos_dias_despues_del_fallecimiento"
+    fecha_mostrada=""
+    manual=(fechas_editables or {}).get(fuente) or (fechas_editables or {}).get(slug(titulo))
+    if manual: fecha,fecha_mostrada,fecha_fuente=manual["fecha"],manual["fecha_mostrada"],manual["fuente"]
     destino=DESTINO/f"{fecha}-{slug(titulo)}.md"
     if destino.exists(): destino=DESTINO/f"{fecha}-{slug(titulo)}-{numero:02d}.md"
-    fuente=ruta.relative_to(ARCHIVO).as_posix()
-    cab=f"---\ntitulo: {titulo}\nfecha: {fecha}\nfecha_fuente: {fecha_fuente}\ntipo: {tipo}\ntema: {tema}\ntema_fuente: clasificacion_automatica\nestado: {estado}\nfuente_original: {fuente}\n---\n\n"
+    mostrada=f"fecha_mostrada: {fecha_mostrada}\n" if fecha_mostrada else ""
+    cab=f"---\ntitulo: {titulo}\nfecha: {fecha}\n{mostrada}fecha_fuente: {fecha_fuente}\ntipo: {tipo}\ntema: {tema}\ntema_fuente: clasificacion_automatica\nestado: {estado}\nfuente_original: {fuente}\n---\n\n"
     destino.write_text(cab+texto.rstrip()+"\n",encoding="utf-8")
     return destino
 
@@ -151,7 +197,7 @@ def main():
     if not ARCHIVO.exists(): print(f"No se encontró {ARCHIVO}",file=sys.stderr); return 1
     DESTINO.mkdir(parents=True,exist_ok=True)
     for p in DESTINO.glob("*.md"): p.unlink()
-    vistos={}; titulos={}; duplicados=[]; fragmentos_omitidos=[]; fallos=[]; revisiones=[]; creados=[]
+    fechas_editables=leer_fechas_editables(); vistos={}; titulos={}; duplicados=[]; fragmentos_omitidos=[]; fallos=[]; revisiones=[]; creados=[]
     for ruta in candidatos():
         texto=extraer_doc(ruta) if ruta.suffix.lower()==".doc" else extraer_html(ruta) if ruta.suffix.lower() in {".htm",".html"} else limpiar(decodificar(ruta.read_bytes()))
         if len(texto)<80: fallos.append(ruta); continue
@@ -159,14 +205,14 @@ def main():
         if huella in vistos: duplicados.append((ruta,vistos[huella])); continue
         estado="revision" if ruta.stem.lower()=="calaveritas" else "publicado"
         if estado=="revision": revisiones.append(ruta)
-        vistos[huella]=ruta; titulos[slug(titulo_de(ruta,texto))]=ruta; creados.append(escribir(ruta,texto,len(creados)+1,estado))
+        vistos[huella]=ruta; titulos[slug(titulo_de(ruta,texto))]=ruta; creados.append(escribir(ruta,texto,len(creados)+1,estado,fechas_editables))
     for ruta,texto in grupos_fragmentos():
         clave=slug(titulo_de(ruta,texto))
         if clave in titulos: fragmentos_omitidos.append((ruta,titulos[clave])); continue
         if len(texto)<80: fallos.append(ruta); continue
         huella=hashlib.sha256(normalizar(texto).encode()).hexdigest()
         if huella in vistos: duplicados.append((ruta,vistos[huella])); continue
-        revisiones.append(ruta); vistos[huella]=ruta; titulos[clave]=ruta; creados.append(escribir(ruta,texto,len(creados)+1,"revision"))
+        revisiones.append(ruta); vistos[huella]=ruta; titulos[clave]=ruta; creados.append(escribir(ruta,texto,len(creados)+1,"revision",fechas_editables))
     lineas=["# Informe de rescate","",f"Generado: {datetime.now().isoformat(timespec='seconds')}","",f"- Piezas recuperadas: {len(creados)}",f"- Duplicados exactos omitidos: {len(duplicados)}",f"- Archivos sin texto suficiente: {len(fallos)}","","## Duplicados omitidos",""]
     lineas += [f"- `{reparar_mojibake(str(a.relative_to(ARCHIVO)))}` -> `{reparar_mojibake(str(b.relative_to(ARCHIVO)))}`" for a,b in duplicados] or ["- Ninguno"]
     lineas += ["","## Equivalencias editoriales", "", "- `poesias/despedida del ITAM.txt` -> `myweb/Personal/escritos/adios_ITAM.htm` (misma obra; se conserva Adios ITAM)"]

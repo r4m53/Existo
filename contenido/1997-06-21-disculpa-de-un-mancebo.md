@@ -1,7 +1,8 @@
 ---
 titulo: Disculpa de un mancebo
-fecha: 2005-10-18
-fecha_fuente: fecha_modificacion
+fecha: 1997-06-21
+fecha_mostrada: Verano de 1997
+fecha_fuente: Recuerdo del autor
 tipo: ensayo
 tema: amor-y-desamor
 tema_fuente: clasificacion_automatica

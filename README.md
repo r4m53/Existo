@@ -14,6 +14,13 @@ reflexiones y columnas financieras sin tener que editar el sitio a mano.
 El proceso asigna fecha, tema y tipo, mueve el original a `entrada/procesados/`,
 crea la versión editorial en `contenido/` y reconstruye `public/`.
 
+## Corregir fechas recordadas
+
+Abre `outputs/fechas/fechas.xlsx` y edita las columnas amarillas. Usa `Fecha
+exacta` cuando la conozcas; si sólo recuerdas una época, deja esa celda vacía y
+completa `Año` y `Periodo`. Al ejecutar `python scripts/publicar.py`, la tabla se
+aplica antes de reconstruir el sitio.
+
 Si quieres decidir los datos, comienza el archivo así:
 
 ```markdown
@@ -38,6 +45,7 @@ reflexión, México y otros.
 - `entrada/`: bandeja para textos nuevos.
 - `public/`: sitio generado; no se guarda en Git porque siempre se reconstruye.
 - `scripts/publicar.py`: flujo normal para añadir y construir.
+- `scripts/aplicar_fechas.py`: aplica al archivo las correcciones de la tabla.
 - `scripts/rescatar.py`: importador histórico reproducible; no altera Dropbox.
 - `scripts/auditar.py`: revisa residuos técnicos, codificación y duplicados.
 - `INFORME_RESCATE.md`: duplicados y piezas pendientes de revisión.

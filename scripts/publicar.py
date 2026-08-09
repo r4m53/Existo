@@ -35,6 +35,7 @@ def main():
         archivado=PROCESADOS/ruta.name
         if archivado.exists(): archivado=PROCESADOS/f"{ruta.stem}-{datetime.now():%Y%m%d%H%M%S}{ruta.suffix}"
         shutil.move(str(ruta),str(archivado)); nuevos+=1; print(f"Añadido: {titulo}")
+    subprocess.run([sys.executable,str(RAIZ/"scripts"/"aplicar_fechas.py")],check=True)
     subprocess.run([sys.executable,str(RAIZ/"scripts"/"construir.py")],check=True)
     print(f"Listo: {nuevos} texto(s) nuevo(s).")
 if __name__=="__main__": main()
