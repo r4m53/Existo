@@ -32,7 +32,7 @@ def plantilla(titulo,contenido,base="",descripcion="Archivo personal de escritos
     return f'''<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{html.escape(titulo)}</title><meta name="description" content="{html.escape(descripcion)}"><link rel="stylesheet" href="{base}estilo.css"><link rel="stylesheet" href="{base}identidad.css"></head><body>{contenido}<script src="{base}sitio.js"></script></body></html>'''
 
 def main():
-    piezas=[leer(p) for p in CONTENIDO.glob("*.md")]; piezas.sort(key=lambda x:(x.get("fecha",""),x.get("titulo","")),reverse=True)
+    piezas=[leer(p) for p in CONTENIDO.glob("*.md")]; piezas.sort(key=lambda x:(x.get("fecha",""),x.get("titulo","")))
     if PUBLIC.exists(): shutil.rmtree(PUBLIC)
     (PUBLIC/"escritos").mkdir(parents=True); shutil.copy2(RAIZ/"static"/"estilo.css",PUBLIC/"estilo.css"); shutil.copy2(RAIZ/"static"/"identidad.css",PUBLIC/"identidad.css"); shutil.copy2(RAIZ/"static"/"sitio.js",PUBLIC/"sitio.js"); shutil.copy2(RAIZ/"static"/"logo.png",PUBLIC/"logo.png")
     for p in piezas:
