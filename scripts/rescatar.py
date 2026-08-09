@@ -87,6 +87,7 @@ def slug(texto): return (re.sub(r"[^a-z0-9]+","-",sin_acentos(texto).lower()).st
 
 def titulo_de(ruta,texto):
     nombre=re.sub(r"(?:\s+\d+-\d+|\.+)$","",ruta.stem).replace("_"," ").strip()
+    nombre=re.sub(r"\s+definitivo$","",nombre,flags=re.IGNORECASE)
     primera=next((x.strip(" ¡!¿?\t") for x in texto.splitlines() if x.strip()),"")
     return (primera[:100] if nombre.lower() in {"principal","rincon","cimientos","index","main"} else nombre) or "Sin título"
 
@@ -183,6 +184,7 @@ def escribir(ruta,texto,numero,estado="publicado",fechas_editables=None):
     fuente=ruta.relative_to(ARCHIVO).as_posix()
     if slug(titulo)=="de-esos-amores-que-al-recordar-vuelven-a-nacer": fecha,fecha_fuente="2005-04-27","fecha_historica_conocida"
     if slug(titulo)=="a-juan-pablo-ii": fecha,fecha_fuente="2005-04-04","dos_dias_despues_del_fallecimiento"
+    if slug(titulo)=="el-sin-por-que-del-destino": fecha,fecha_fuente="2005-10-21","fecha_de_los_fragmentos_originales"
     fecha_mostrada=""
     manual=(fechas_editables or {}).get(fuente) or (fechas_editables or {}).get(slug(titulo))
     if manual: fecha,fecha_mostrada,fecha_fuente=manual["fecha"],manual["fecha_mostrada"],manual["fuente"]

@@ -1,6 +1,6 @@
 # Informe de rescate
 
-Generado: 2026-08-09T10:36:51
+Generado: 2026-08-09T11:48:56
 
 - Piezas recuperadas: 78
 - Duplicados exactos omitidos: 4
@@ -26,6 +26,7 @@ Generado: 2026-08-09T10:36:51
 - `poesias\imagenes\cleopatra 1-1.txt` -> `myweb\Personal\escritos\cleopatra.htm`
 - `poesias\imagenes\contra los dones 1-2.txt` -> `poesias\imagenes\contra los dones.txt`
 - `poesias\imagenes\contra los padres 1-2.txt` -> `poesias\imagenes\contra los padres.txt`
+- `poesias\imagenes\el sin por que del destino 1-4.txt` -> `poesias\imagenes\el sin por que del destino definitivo.txt`
 - `poesias\imagenes\triunfa 1-2.txt` -> `poesias\imagenes\triunfa.txt`
 
 ## Revision manual pendiente
@@ -35,7 +36,6 @@ Generado: 2026-08-09T10:36:51
 - `poesias\imagenes\belleza, dulzura y una pizca de alegria 1-1.txt` (recuperacion parcial)
 - `poesias\imagenes\cambio de destino 1-1.txt` (recuperacion parcial)
 - `poesias\imagenes\donde estas 1-2.txt` (recuperacion parcial)
-- `poesias\imagenes\el sin por que del destino 1-4.txt` (recuperacion parcial)
 - `poesias\imagenes\elixir de un beso... 1-1.txt` (recuperacion parcial)
 - `poesias\imagenes\he vuelto 1-2.txt` (recuperacion parcial)
 - `poesias\imagenes\la carta que no existio 1-2.txt` (recuperacion parcial)

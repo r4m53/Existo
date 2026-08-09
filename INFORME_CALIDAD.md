@@ -1,10 +1,10 @@
 # Informe de calidad
 
-Generado: 2026-08-09T10:40:37
+Generado: 2026-08-09T11:48:56
 
 - Escritos auditados: 78
-- Publicados: 64
-- Marcados para revision: 14
+- Publicados: 65
+- Marcados para revision: 13
 - Problemas tecnicos detectados: 0
 
 ## Hallazgos tecnicos
