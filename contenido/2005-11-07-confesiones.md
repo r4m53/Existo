@@ -17,7 +17,7 @@ con un cetro o un verso
 
 "princesa del universo",
 
-¡sería a ti, Barbara Alba!
+¡sería a ti, Barbara A.!
 
 por ser de espíritu fuerte
 

@@ -36,7 +36,8 @@ def limpiar(texto):
     for linea in (re.sub(r"[ \t]+"," ",x).strip() for x in texto.splitlines()):
         if linea: salida.append(linea)
         elif salida and salida[-1] != "": salida.append("")
-    return "\n".join(salida).strip()
+    texto_limpio="\n".join(salida).strip()
+    return re.sub(r"\bB[aá]rbara\s+Alba\b","Barbara A.",texto_limpio,flags=re.IGNORECASE)
 
 def reparar_mojibake(texto):
     if any(x in texto for x in ("Ã", "â€", "Â")):

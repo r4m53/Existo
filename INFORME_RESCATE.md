@@ -1,6 +1,6 @@
 # Informe de rescate
 
-Generado: 2026-08-09T11:48:56
+Generado: 2026-08-09T11:51:33
 
 - Piezas recuperadas: 78
 - Duplicados exactos omitidos: 4

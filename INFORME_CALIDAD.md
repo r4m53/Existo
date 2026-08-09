@@ -1,6 +1,6 @@
 # Informe de calidad
 
-Generado: 2026-08-09T11:48:56
+Generado: 2026-08-09T11:51:34
 
 - Escritos auditados: 78
 - Publicados: 65
