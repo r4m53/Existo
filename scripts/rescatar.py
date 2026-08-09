@@ -47,19 +47,27 @@ def extraer_html(ruta):
 
 def extraer_doc(ruta):
     fragmentos=[]
-    for bloque in re.findall(rb"[\x09\x0a\x0d\x20-\x7e\x80-\xfe]{30,}",ruta.read_bytes()):
+    for bloque in re.findall(rb"[\x09\x0a\x0d\x20-\x7e\x80-\xfe]{5,}",ruta.read_bytes()):
         texto=reparar_mojibake(limpiar(bloque.decode("cp1252",errors="ignore"))).replace("Ą","¡").replace("ż","¿"); letras=sum(c.isalpha() for c in texto)
         basura=texto.count("ÿ")+texto.count("þ")
         raros=len(re.findall(r'''[^A-Za-z0-9ÁÉÍÓÚÜÑáéíóúüñ¿¡.,;:!?\'"()…—–\-/%$#@&\s]''',texto))
-        if letras>=20 and basura<max(5,len(texto)//20) and raros<=max(3,len(texto)//25): fragmentos.append(texto)
+        limite_raros=0 if len(texto)<12 else max(2,len(texto)//25)
+        if letras>=3 and basura<max(3,len(texto)//20) and raros<=limite_raros: fragmentos.append(texto)
     if not fragmentos: return ""
     metadatos=("Microsoft Word","Word.Document","SummaryInformation","Times New Roman","theme/","<?xml","xmlns:","Content_Types")
     utiles=[x for x in fragmentos if not any(m in x for m in metadatos)]
     if not utiles: return ""
     mayor=max(utiles,key=lambda x:(len(x.split()),len(x)))
     if len(mayor.split())<80 and sum(len(x.split()) for x in utiles)>len(mayor.split())*2:
-        return limpiar("\n".join(utiles))
-    return mayor
+        resultado=limpiar("\n".join(utiles))
+    else:
+        resultado=mayor
+    lineas=resultado.splitlines()
+    for i,linea in enumerate(lineas):
+        firma=linea.strip()
+        if i>=len(lineas)//2 and re.fullmatch(r"[A-ZÁÉÍÓÚÜÑ]{3,20}",firma):
+            return "\n".join(lineas[:i+1]).strip()
+    return resultado
 
 def sin_acentos(texto): return "".join(c for c in unicodedata.normalize("NFKD",texto) if not unicodedata.combining(c))
 def slug(texto): return (re.sub(r"[^a-z0-9]+","-",sin_acentos(texto).lower()).strip("-")[:72] or "sin-titulo")
