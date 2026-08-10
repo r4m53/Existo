@@ -8,6 +8,7 @@ from pathlib import Path
 
 RAIZ=Path(__file__).resolve().parents[1]; CONTENIDO=RAIZ/"contenido"; PUBLIC=RAIZ/"public"
 SITIO_URL="https://r4m53.github.io/Existo/"
+DESCRIPCION_SITIO="Textos, poesías, reflexiones y columnas. Un archivo vivo para recorrer libremente o por fecha."
 # Velocidad media usada únicamente para la métrica estimada de lectura en GA4.
 PALABRAS_POR_MINUTO=220
 
@@ -36,12 +37,24 @@ def mostrar_fecha(pieza): return pieza.get("fecha_mostrada") or fecha_legible(pi
 def contar_palabras(texto):
     return len(re.findall(r"\b\w+\b",texto,flags=re.UNICODE))
 
-def plantilla(titulo,contenido,base="",descripcion="Archivo personal de escritos",canonical="",tipo_og="website"):
+def boton_compartir(titulo,texto,url,tipo,superficie,slug="",clase="",texto_visible=False):
+    datos={"title":titulo,"text":texto,"url":url,"type":tipo,"surface":superficie,"slug":slug}
+    atributos=" ".join(f'data-share-{k}="{html.escape(str(v),quote=True)}"' for k,v in datos.items() if v)
+    contenido='↗ Compartir' if texto_visible else '↗<span class="solo-lectores">Compartir</span>'
+    return f'''<button class="compartir {clase}" type="button" aria-label="Compartir {html.escape(titulo,quote=True)}" aria-expanded="false" {atributos}>{contenido}</button>'''
+
+def plantilla(titulo,contenido,base="",descripcion="Archivo personal de escritos",canonical="",tipo_og="website",imagen_og="",titulo_social=""):
     titulo_seguro=html.escape(titulo); descripcion_segura=html.escape(descripcion,quote=True)
     social=''
     if canonical:
         url_segura=html.escape(canonical,quote=True)
-        social=f'''<link rel="canonical" href="{url_segura}"><meta property="og:title" content="{html.escape(titulo,quote=True)}"><meta property="og:description" content="{descripcion_segura}"><meta property="og:url" content="{url_segura}"><meta property="og:type" content="{html.escape(tipo_og,quote=True)}"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="{html.escape(titulo,quote=True)}"><meta name="twitter:description" content="{descripcion_segura}">'''
+        titulo_social_seguro=html.escape(titulo_social or titulo,quote=True)
+        imagen=''
+        tarjeta='summary'
+        if imagen_og:
+            imagen_segura=html.escape(imagen_og,quote=True); tarjeta='summary_large_image'
+            imagen=f'''<meta property="og:image" content="{imagen_segura}"><meta name="twitter:image" content="{imagen_segura}">'''
+        social=f'''<link rel="canonical" href="{url_segura}"><meta property="og:title" content="{titulo_social_seguro}"><meta property="og:description" content="{descripcion_segura}"><meta property="og:url" content="{url_segura}"><meta property="og:type" content="{html.escape(tipo_og,quote=True)}">{imagen}<meta name="twitter:card" content="{tarjeta}"><meta name="twitter:title" content="{titulo_social_seguro}"><meta name="twitter:description" content="{descripcion_segura}">'''
     return f'''<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{titulo_seguro}</title><meta name="description" content="{descripcion_segura}">{social}<link rel="stylesheet" href="{base}estilo.css"><link rel="stylesheet" href="{base}identidad.css"><link rel="stylesheet" href="{base}share.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-9NKC49H0D8"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments)}}gtag('js',new Date());gtag('config','G-9NKC49H0D8');</script></head><body>{contenido}<script src="{base}sitio.js"></script><script src="{base}analytics.js"></script><script src="{base}share.js"></script></body></html>'''
 
 def main():
@@ -55,8 +68,9 @@ def main():
         atributos=" ".join(f'data-article-{k.replace("_","-")}="{html.escape(str(v),quote=True)}"' for k,v in datos.items() if v!="")
         descripcion=re.sub(r"\s+"," ",p["cuerpo"]).strip()[:160]
         url=f'{SITIO_URL}escritos/{p["slug"]}.html'
+        compartir=boton_compartir(p.get("titulo","Sin título"),descripcion,url,"article","article_page",p["slug"],"compartir-articulo")
         aviso='<p class="aviso">Recuperación parcial del archivo original; requiere revisión.</p>' if p.get("estado")=="revision" else ''
-        articulo=f'''<header class="cabecera mínima"><a class="marca" href="../index.html">Existo</a></header><main class="lectura"><a class="volver" href="../index.html">← Todos los escritos</a><article data-analytics-article {atributos}><div class="metadatos"><span>{html.escape(mostrar_fecha(p))}</span><span>{html.escape(tipo)}</span><span>{html.escape(tema)}</span></div><h1>{html.escape(p.get('titulo','Sin título'))}</h1>{aviso}<div class="texto" data-article-body>{cuerpo_html(p['cuerpo'])}</div></article></main><footer>Existo · Archivo personal</footer>'''
+        articulo=f'''<header class="cabecera mínima"><a class="marca" href="../index.html">Existo</a></header><main class="lectura"><a class="volver" href="../index.html">← Todos los escritos</a><article data-analytics-article {atributos}><div class="metadatos"><span>{html.escape(mostrar_fecha(p))}</span><span>{html.escape(tipo)}</span><span>{html.escape(tema)}</span>{compartir}</div><h1>{html.escape(p.get('titulo','Sin título'))}</h1>{aviso}<div class="texto" data-article-body>{cuerpo_html(p['cuerpo'])}</div></article></main><footer>Existo · Archivo personal</footer>'''
         (PUBLIC/"escritos"/f"{p['slug']}.html").write_text(plantilla(p.get("titulo","Escrito"),articulo,"../",descripcion,url,"article"),encoding="utf-8")
     temas=Counter(p.get("tema","otros") for p in piezas); tipos=Counter(p.get("tipo","texto") for p in piezas)
     filtros_tema=''.join(f'<button data-filtro="tema" data-valor="{html.escape(k)}">{html.escape(k.replace("-"," "))} <small>{v}</small></button>' for k,v in sorted(temas.items()))
@@ -66,9 +80,11 @@ def main():
         extracto=re.sub(r"\s+"," ",p["cuerpo"]).strip()[:190]
         revision='<span>revisión pendiente</span>' if p.get('estado')=='revision' else ''
         url=f'{SITIO_URL}escritos/{p["slug"]}.html'
-        tarjetas.append(f'''<article class="tarjeta" data-fecha="{html.escape(p.get('fecha',''))}" data-tema="{html.escape(p.get('tema','otros'))}" data-tipo="{html.escape(p.get('tipo','texto'))}" data-busca="{html.escape((p.get('titulo','')+' '+p['cuerpo']).lower())}"><div class="fecha">{html.escape(mostrar_fecha(p))}</div><button class="compartir" type="button" aria-label="Compartir {html.escape(p.get('titulo','Sin título'),quote=True)}" aria-expanded="false" data-share-slug="{html.escape(p['slug'],quote=True)}" data-share-title="{html.escape(p.get('titulo','Sin título'),quote=True)}" data-share-text="{html.escape(extracto,quote=True)}" data-share-url="{html.escape(url,quote=True)}">↗<span class="solo-lectores">Compartir</span></button><h2><a href="escritos/{p['slug']}.html">{html.escape(p.get('titulo','Sin título'))}</a></h2><p>{html.escape(extracto)}…</p><div class="etiquetas"><span>{html.escape(p.get('tipo','texto').replace('-',' '))}</span><span>{html.escape(p.get('tema','otros').replace('-',' '))}</span>{revision}</div></article>''')
-    inicio=f'''<header class="cabecera"><img class="logo" src="logo.png" alt="Existo — Razono, siento; miento, luego sé que existo"><a class="marca" href="index.html">Existo</a><p>Textos, poesías, reflexiones y columnas. Un archivo vivo para recorrer libremente o por fecha.</p><div class="resumen"><strong>{len(piezas)}</strong> escritos <span>·</span> <strong>{len(temas)}</strong> temas</div></header><main><section class="controles" aria-label="Buscar y filtrar"><label>Buscar<input id="buscar" type="search" placeholder="Una palabra, un título…"></label><label>Tipo<select id="tipo"><option value="">Todos</option>{filtros_tipo}</select></label><label>Orden<select id="orden"><option value="azar">Al azar</option><option value="cronologico">Cronológico</option></select></label><div class="temas"><button class="activo" data-filtro="tema" data-valor="">todos</button>{filtros_tema}</div></section><p id="resultado" class="resultado"></p><section id="archivo" class="archivo">{''.join(tarjetas)}</section></main><footer>Existo · Archivo personal</footer>'''
-    (PUBLIC/"index.html").write_text(plantilla("Existo — Archivo de escritos",inicio,canonical=SITIO_URL),encoding="utf-8")
+        compartir=boton_compartir(p.get("titulo","Sin título"),extracto,url,"article","home_card",p["slug"],"compartir-card")
+        tarjetas.append(f'''<article class="tarjeta" data-fecha="{html.escape(p.get('fecha',''))}" data-tema="{html.escape(p.get('tema','otros'))}" data-tipo="{html.escape(p.get('tipo','texto'))}" data-busca="{html.escape((p.get('titulo','')+' '+p['cuerpo']).lower())}"><div class="fecha">{html.escape(mostrar_fecha(p))}</div>{compartir}<h2><a href="escritos/{p['slug']}.html">{html.escape(p.get('titulo','Sin título'))}</a></h2><p>{html.escape(extracto)}…</p><div class="etiquetas"><span>{html.escape(p.get('tipo','texto').replace('-',' '))}</span><span>{html.escape(p.get('tema','otros').replace('-',' '))}</span>{revision}</div></article>''')
+    compartir_sitio=boton_compartir("Existo",DESCRIPCION_SITIO,SITIO_URL,"site","site_home",clase="compartir-sitio",texto_visible=True)
+    inicio=f'''<header class="cabecera"><img class="logo" src="logo.png" alt="Existo — Razono, siento; miento, luego sé que existo"><a class="marca" href="index.html">Existo</a><p>{DESCRIPCION_SITIO}</p><div class="resumen"><strong>{len(piezas)}</strong> escritos <span>·</span> <strong>{len(temas)}</strong> temas</div>{compartir_sitio}</header><main><section class="controles" aria-label="Buscar y filtrar"><label>Buscar<input id="buscar" type="search" placeholder="Una palabra, un título…"></label><label>Tipo<select id="tipo"><option value="">Todos</option>{filtros_tipo}</select></label><label>Orden<select id="orden"><option value="azar">Al azar</option><option value="cronologico">Cronológico</option></select></label><div class="temas"><button class="activo" data-filtro="tema" data-valor="">todos</button>{filtros_tema}</div></section><p id="resultado" class="resultado"></p><section id="archivo" class="archivo">{''.join(tarjetas)}</section></main><footer>Existo · Archivo personal</footer>'''
+    (PUBLIC/"index.html").write_text(plantilla("Existo — Archivo de escritos",inicio,descripcion=DESCRIPCION_SITIO,canonical=SITIO_URL,imagen_og=f"{SITIO_URL}logo.png",titulo_social="Existo"),encoding="utf-8")
     (PUBLIC/"archivo.json").write_text(json.dumps([{k:v for k,v in p.items() if k!="cuerpo"} for p in piezas],ensure_ascii=False,indent=2),encoding="utf-8")
     print(f"Sitio construido con {len(piezas)} escritos en {PUBLIC}")
 if __name__=="__main__": main()

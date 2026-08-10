@@ -16,13 +16,20 @@
   document.body.appendChild(popover);
 
   function analytics(method, button) {
-    const card = button.closest('.tarjeta');
+    const type = button.dataset.shareType;
+    const surface = button.dataset.shareSurface;
+    if (type === 'site') {
+      window.ExistoAnalytics?.sendEvent('site_share', {share_method: method, share_surface: surface});
+      return;
+    }
+    const context = button.closest('.tarjeta, [data-analytics-article]');
     window.ExistoAnalytics?.sendEvent('article_share', {
-      article_slug: button.dataset.shareSlug,
-      article_title: button.dataset.shareTitle,
-      article_topic: card?.dataset.tema,
-      article_type: card?.dataset.tipo,
-      share_method: method
+      article_slug: button.dataset.shareSlug || context?.dataset.articleSlug,
+      article_title: button.dataset.shareTitle || context?.dataset.articleTitle,
+      article_topic: context?.dataset.tema || context?.dataset.articleTopic,
+      article_type: context?.dataset.tipo || context?.dataset.articleType,
+      share_method: method,
+      share_surface: surface
     });
   }
 

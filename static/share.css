@@ -1,13 +1,33 @@
 .compartir {
-  float: right;
   width: 2rem;
   height: 2rem;
-  margin: -.45rem -.55rem 0 .5rem;
   padding: 0;
   border-color: transparent;
   background: transparent;
   color: var(--suave);
   font: 600 1rem Arial, sans-serif;
+}
+
+.compartir-card {
+  float: right;
+  margin: -.45rem -.55rem 0 .5rem;
+}
+
+.compartir-sitio {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  margin-top: 1rem;
+  padding: .45rem .75rem;
+  gap: .3rem;
+  font-size: .75rem;
+}
+
+.compartir-articulo {
+  flex: 0 0 auto;
+  margin: -.55rem 0 -.55rem auto;
 }
 
 .compartir:hover,

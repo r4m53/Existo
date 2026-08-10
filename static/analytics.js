@@ -11,7 +11,7 @@
     });
     if (DEBUG) {
       payload.debug_mode = true;
-      console.info('[Existo analytics]', name, payload);
+      console.info('[Existo analytics]', name, JSON.stringify(payload));
     }
     try {
       if (typeof window.gtag === 'function') window.gtag('event', name, payload);
