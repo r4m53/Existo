@@ -7,6 +7,8 @@ from datetime import datetime
 from pathlib import Path
 
 RAIZ=Path(__file__).resolve().parents[1]; CONTENIDO=RAIZ/"contenido"; PUBLIC=RAIZ/"public"
+# Velocidad media usada únicamente para la métrica estimada de lectura en GA4.
+PALABRAS_POR_MINUTO=220
 
 def leer(ruta):
     raw=ruta.read_text(encoding="utf-8")
@@ -30,17 +32,23 @@ def fecha_legible(valor):
 
 def mostrar_fecha(pieza): return pieza.get("fecha_mostrada") or fecha_legible(pieza.get("fecha",""))
 
+def contar_palabras(texto):
+    return len(re.findall(r"\b\w+\b",texto,flags=re.UNICODE))
+
 def plantilla(titulo,contenido,base="",descripcion="Archivo personal de escritos"):
-    return f'''<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{html.escape(titulo)}</title><meta name="description" content="{html.escape(descripcion)}"><link rel="stylesheet" href="{base}estilo.css"><link rel="stylesheet" href="{base}identidad.css"></head><body>{contenido}<script src="{base}sitio.js"></script></body></html>'''
+    return f'''<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{html.escape(titulo)}</title><meta name="description" content="{html.escape(descripcion)}"><link rel="stylesheet" href="{base}estilo.css"><link rel="stylesheet" href="{base}identidad.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-9NKC49H0D8"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments)}}gtag('js',new Date());gtag('config','G-9NKC49H0D8');</script></head><body>{contenido}<script src="{base}sitio.js"></script><script src="{base}analytics.js"></script></body></html>'''
 
 def main():
     piezas=[leer(p) for p in CONTENIDO.glob("*.md")]; piezas.sort(key=lambda x:(x.get("fecha",""),x.get("titulo","")))
     if PUBLIC.exists(): shutil.rmtree(PUBLIC)
-    (PUBLIC/"escritos").mkdir(parents=True); shutil.copy2(RAIZ/"static"/"estilo.css",PUBLIC/"estilo.css"); shutil.copy2(RAIZ/"static"/"identidad.css",PUBLIC/"identidad.css"); shutil.copy2(RAIZ/"static"/"sitio.js",PUBLIC/"sitio.js"); shutil.copy2(RAIZ/"static"/"logo.png",PUBLIC/"logo.png")
+    (PUBLIC/"escritos").mkdir(parents=True); shutil.copy2(RAIZ/"static"/"estilo.css",PUBLIC/"estilo.css"); shutil.copy2(RAIZ/"static"/"identidad.css",PUBLIC/"identidad.css"); shutil.copy2(RAIZ/"static"/"sitio.js",PUBLIC/"sitio.js"); shutil.copy2(RAIZ/"static"/"analytics.js",PUBLIC/"analytics.js"); shutil.copy2(RAIZ/"static"/"logo.png",PUBLIC/"logo.png")
     for p in piezas:
         tipo=p.get("tipo","texto").replace("-"," "); tema=p.get("tema","otros").replace("-"," ")
+        palabras=contar_palabras(p["cuerpo"]); lectura=max(1,(palabras+PALABRAS_POR_MINUTO-1)//PALABRAS_POR_MINUTO)
+        datos={"slug":p["slug"],"title":p.get("titulo","Sin título"),"date":p.get("fecha",""),"topic":p.get("tema",""),"type":p.get("tipo",""),"word_count":palabras,"estimated_read_time":lectura}
+        atributos=" ".join(f'data-article-{k.replace("_","-")}="{html.escape(str(v),quote=True)}"' for k,v in datos.items() if v!="")
         aviso='<p class="aviso">Recuperación parcial del archivo original; requiere revisión.</p>' if p.get("estado")=="revision" else ''
-        articulo=f'''<header class="cabecera mínima"><a class="marca" href="../index.html">Existo</a></header><main class="lectura"><a class="volver" href="../index.html">← Todos los escritos</a><article><div class="metadatos"><span>{html.escape(mostrar_fecha(p))}</span><span>{html.escape(tipo)}</span><span>{html.escape(tema)}</span></div><h1>{html.escape(p.get('titulo','Sin título'))}</h1>{aviso}<div class="texto">{cuerpo_html(p['cuerpo'])}</div></article></main><footer>Existo · Archivo personal</footer>'''
+        articulo=f'''<header class="cabecera mínima"><a class="marca" href="../index.html">Existo</a></header><main class="lectura"><a class="volver" href="../index.html">← Todos los escritos</a><article data-analytics-article {atributos}><div class="metadatos"><span>{html.escape(mostrar_fecha(p))}</span><span>{html.escape(tipo)}</span><span>{html.escape(tema)}</span></div><h1>{html.escape(p.get('titulo','Sin título'))}</h1>{aviso}<div class="texto" data-article-body>{cuerpo_html(p['cuerpo'])}</div></article></main><footer>Existo · Archivo personal</footer>'''
         (PUBLIC/"escritos"/f"{p['slug']}.html").write_text(plantilla(p.get("titulo","Escrito"),articulo,"../"),encoding="utf-8")
     temas=Counter(p.get("tema","otros") for p in piezas); tipos=Counter(p.get("tipo","texto") for p in piezas)
     filtros_tema=''.join(f'<button data-filtro="tema" data-valor="{html.escape(k)}">{html.escape(k.replace("-"," "))} <small>{v}</small></button>' for k,v in sorted(temas.items()))
