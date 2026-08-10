@@ -20,6 +20,8 @@
     }
   }
 
+  window.ExistoAnalytics = Object.freeze({sendEvent: sendEvent});
+
   if (!article) return;
 
   const body = article.querySelector('[data-article-body]');
