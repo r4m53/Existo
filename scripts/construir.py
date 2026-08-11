@@ -70,7 +70,11 @@ def main():
         url=f'{SITIO_URL}escritos/{p["slug"]}.html'
         compartir=boton_compartir(p.get("titulo","Sin título"),descripcion,url,"article","article_page",p["slug"],"compartir-articulo")
         aviso='<p class="aviso">Recuperación parcial del archivo original; requiere revisión.</p>' if p.get("estado")=="revision" else ''
-        articulo=f'''<header class="cabecera mínima"><a class="marca" href="../index.html">Existo</a></header><main class="lectura"><a class="volver" href="../index.html">← Todos los escritos</a><article data-analytics-article {atributos}><div class="metadatos"><span>{html.escape(mostrar_fecha(p))}</span><span>{html.escape(tipo)}</span><span>{html.escape(tema)}</span>{compartir}</div><h1>{html.escape(p.get('titulo','Sin título'))}</h1>{aviso}<div class="texto" data-article-body>{cuerpo_html(p['cuerpo'])}</div></article></main><footer>Existo · Archivo personal</footer>'''
+        origen=''
+        if p.get('enlace_original'):
+            publicacion=p.get('publicacion_original','la publicación original')
+            origen=f'<p class="publicacion-original">Publicado originalmente en <a href="{html.escape(p["enlace_original"],quote=True)}" target="_blank" rel="noopener noreferrer">{html.escape(publicacion)}</a>.</p>'
+        articulo=f'''<header class="cabecera mínima"><a class="marca" href="../index.html">Existo</a></header><main class="lectura"><a class="volver" href="../index.html">← Todos los escritos</a><article data-analytics-article {atributos}><div class="metadatos"><span>{html.escape(mostrar_fecha(p))}</span><span>{html.escape(tipo)}</span><span>{html.escape(tema)}</span>{compartir}</div><h1>{html.escape(p.get('titulo','Sin título'))}</h1>{origen}{aviso}<div class="texto" data-article-body>{cuerpo_html(p['cuerpo'])}</div></article></main><footer>Existo · Archivo personal</footer>'''
         (PUBLIC/"escritos"/f"{p['slug']}.html").write_text(plantilla(p.get("titulo","Escrito"),articulo,"../",descripcion,url,"article"),encoding="utf-8")
     temas=Counter(p.get("tema","otros") for p in piezas); tipos=Counter(p.get("tipo","texto") for p in piezas)
     filtros_tema=''.join(f'<button data-filtro="tema" data-valor="{html.escape(k)}">{html.escape(k.replace("-"," "))} <small>{v}</small></button>' for k,v in sorted(temas.items()))

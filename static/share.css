@@ -91,3 +91,16 @@
   background: var(--papel);
   color: var(--acento);
 }
+
+.publicacion-original {
+  margin: -1rem 0 2.5rem;
+  color: var(--tinta-suave);
+  font-family: Arial, sans-serif;
+  font-size: .84rem;
+}
+
+.publicacion-original a {
+  color: var(--acento);
+  font-weight: 700;
+  text-underline-offset: .18em;
+}
